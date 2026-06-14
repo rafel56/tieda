@@ -1,0 +1,53 @@
+/* ===== DESPACHO ===== */
+
+body{
+    background:#f4f8ff;
+}
+
+h1{
+    text-align:center;
+    margin:20px 0;
+    color:#0d47a1;
+}
+
+#despacho{
+    width:90%;
+    margin:auto;
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(250px,1fr));
+    gap:20px;
+    padding:20px;
+}
+
+#despacho .item{
+    background:white;
+    border:2px solid #2196f3;
+    border-radius:15px;
+    padding:20px;
+    text-align:center;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+
+#despacho .item h3{
+    color:#1565c0;
+    margin-bottom:10px;
+}
+
+#despacho .item p{
+    margin:8px 0;
+    color:#333;
+}
+
+#despacho .item button{
+    background:#1976d2;
+    color:white;
+    border:none;
+    padding:10px 20px;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:bold;
+}
+
+#despacho .item button:hover{
+    background:#0d47a1;
+}

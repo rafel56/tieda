@@ -1,5 +1,57 @@
 
 
+// ===== despacho =====
+(function () {
+const ventasPendientes =
+  JSON.parse(
+    localStorage.getItem('ventasPendientes')
+  ) || [];
+
+function cargarDespachos() {
+
+  const contenedor =
+    document.getElementById('despacho');
+
+  if (!contenedor) return;
+
+  contenedor.innerHTML = '';
+
+  ventasPendientes.forEach(
+    (producto, index) => {
+
+      contenedor.innerHTML += `
+        <div class="item">
+          <h3>${producto.nombre}</h3>
+          <p>Cantidad: ${producto.cantidad}</p>
+          <p>Precio: $${producto.valo}</p>
+
+          <button onclick="despachar(${index})">
+            Despachar
+          </button>
+        </div>
+      `;
+
+    }
+  );
+
+}
+
+window.despachar = function(index) {
+
+  ventasPendientes.splice(index, 1);
+
+  localStorage.setItem(
+    'ventasPendientes',
+    JSON.stringify(ventasPendientes)
+  );
+
+  cargarDespachos();
+
+};
+
+cargarDespachos();
+})();
+
 // ===== login =====
 (function () {
 const modal =
@@ -25,38 +77,51 @@ document
   .getElementById('btnRegistro')
   .addEventListener('click', async () => {
 
-    const usuario =
+    try {
+
+      const usuario =
+        document.getElementById(
+          'usuarioRegistro'
+        ).value;
+
+      const password =
+        document.getElementById(
+          'passwordRegistro'
+        ).value;
+
+      const respuesta =
+        await fetch(
+          'http://localhost:3000/api/registro',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              usuario,
+              password
+            })
+          }
+        );
+
+      const datos =
+        await respuesta.json();
+
       document.getElementById(
-        'usuarioRegistro'
-      ).value;
+        'mensajeLogin'
+      ).textContent =
+        datos.mensaje;
 
-    const password =
+    } catch (error) {
+
+      console.error(error);
+
       document.getElementById(
-        'passwordRegistro'
-      ).value;
+        'mensajeLogin'
+      ).textContent =
+        'Error conectando al servidor';
 
-    const respuesta =
-      await fetch(
-        'http://localhost:3000/api/registro',
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json'
-          },
-          body:JSON.stringify({
-            usuario,
-            password
-          })
-        }
-      );
-
-    const datos =
-      await respuesta.json();
-
-    document.getElementById(
-      'mensajeLogin'
-    ).textContent =
-      datos.mensaje;
+    }
 
   });
 
@@ -64,47 +129,81 @@ document
   .getElementById('btnLogin')
   .addEventListener('click', async () => {
 
-    const usuario =
-      document.getElementById(
-        'usuarioLogin'
-      ).value;
+    try {
 
-    const password =
-      document.getElementById(
-        'passwordLogin'
-      ).value;
+      const usuario =
+        document.getElementById(
+          'usuarioLogin'
+        ).value;
 
-    const respuesta =
-      await fetch(
-        'http://localhost:3000/api/login',
-        {
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json'
-          },
-          body:JSON.stringify({
-            usuario,
-            password
-          })
-        }
+      const password =
+        document.getElementById(
+          'passwordLogin'
+        ).value;
+
+      const respuesta =
+        await fetch(
+          'http://localhost:3000/api/login',
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              usuario,
+              password
+            })
+          }
+        );
+
+      const datos =
+        await respuesta.json();
+
+      console.log(
+        'Respuesta login:',
+        datos
       );
 
-    const datos =
-      await respuesta.json();
+      if (datos.token) {
 
-    if(datos.token){
+        localStorage.setItem(
+          'token',
+          datos.token
+        );
 
-      localStorage.setItem(
-        'token',
-        datos.token
+        document.getElementById(
+          'mensajeLogin'
+        ).textContent =
+          'Sesión iniciada correctamente';
+
+        alert(
+          'Sesión iniciada'
+        );
+
+        modal.style.display =
+          'none';
+
+      } else {
+
+        document.getElementById(
+          'mensajeLogin'
+        ).textContent =
+          datos.mensaje ||
+          'Usuario o contraseña incorrectos';
+
+      }
+
+    } catch (error) {
+
+      console.error(
+        'Error login:',
+        error
       );
 
       document.getElementById(
         'mensajeLogin'
       ).textContent =
-        'Sesión iniciada';
-
-      modal.style.display='none';
+        'No se pudo conectar al servidor';
 
     }
 
@@ -381,6 +480,13 @@ function comprarTodo() {
       contadodeproductos
     );
 
+  localStorage.setItem(
+    'ventasPendientes',
+    JSON.stringify(
+      contadodeproductos
+    )
+  );
+
   contadodeproductos = [];
 
   actualizarCarrito();
@@ -394,8 +500,10 @@ function comprarTodo() {
     comprados
   );
 
-}
+  window.location.href =
+    'despacho.html';
 
+}
 // Buscar productos
 function busqueda() {
 
