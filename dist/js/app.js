@@ -2,6 +2,64 @@
 
 // ===== login =====
 (function () {
+const modal =
+  document.getElementById('loginModal');
+
+document
+  .getElementById('abrirLogin')
+  .addEventListener('click', () => {
+
+    modal.style.display = 'block';
+
+  });
+
+document
+  .getElementById('cerrarLogin')
+  .addEventListener('click', () => {
+
+    modal.style.display = 'none';
+
+  });
+
+document
+  .getElementById('btnRegistro')
+  .addEventListener('click', async () => {
+
+    const usuario =
+      document.getElementById(
+        'usuarioRegistro'
+      ).value;
+
+    const password =
+      document.getElementById(
+        'passwordRegistro'
+      ).value;
+
+    const respuesta =
+      await fetch(
+        'http://localhost:3000/api/registro',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({
+            usuario,
+            password
+          })
+        }
+      );
+
+    const datos =
+      await respuesta.json();
+
+    document.getElementById(
+      'mensajeLogin'
+    ).textContent =
+      datos.mensaje;
+
+  });
+
 document
   .getElementById('btnLogin')
   .addEventListener('click', async () => {
@@ -16,27 +74,37 @@ document
         'passwordLogin'
       ).value;
 
-    const datos =
-      await iniciarSesion(
-        usuario,
-        password
+    const respuesta =
+      await fetch(
+        'http://localhost:3000/api/login',
+        {
+          method:'POST',
+          headers:{
+            'Content-Type':'application/json'
+          },
+          body:JSON.stringify({
+            usuario,
+            password
+          })
+        }
       );
 
-    if (datos.token) {
+    const datos =
+      await respuesta.json();
+
+    if(datos.token){
+
+      localStorage.setItem(
+        'token',
+        datos.token
+      );
 
       document.getElementById(
         'mensajeLogin'
       ).textContent =
-        'Sesión iniciada correctamente';
+        'Sesión iniciada';
 
-      modal.style.display = 'none';
-
-    } else {
-
-      document.getElementById(
-        'mensajeLogin'
-      ).textContent =
-        datos.mensaje;
+      modal.style.display='none';
 
     }
 
@@ -46,36 +114,48 @@ document
 // ===== main =====
 // import { login } from '../componentes/login.js';
 
-
 let procdutos = [];
 
 let contadodeproductos = [];
 let comprados = [];
 
-
 async function cargarProductos() {
-  try {
-    const respuesta = await fetch('http://localhost:3000/api/productos');
 
-    procdutos = await respuesta.json();
+  try {
+
+    const respuesta =
+      await fetch(
+        'http://localhost:3000/api/productos'
+      );
+
+    procdutos =
+      await respuesta.json();
 
     todoprocductos();
 
- 
-  
   } catch (error) {
-    console.error('Error cargando productos:', error);
+
+    console.error(
+      'Error cargando productos:',
+      error
+    );
+
   }
+
 }
 
-// Mostrar productos en la galería
+// Mostrar productos
 function todoprocductos() {
 
   procdutos.forEach(producto => {
 
-    let espacio = document.querySelector(`.${producto.nombre}`);
+    let espacio =
+      document.querySelector(
+        `.${producto.nombre}`
+      );
 
     if (espacio) {
+
       espacio.innerHTML = `
         <div style="padding:5px; font-size:13px; color:#222;">
           Nombre: ${producto.nombre}<br>
@@ -83,12 +163,14 @@ function todoprocductos() {
           Cantidad: ${producto.catida}
         </div>
       `;
+
     }
 
   });
 
 }
 
+// Agregar producto al carrito
 function mostrarnombre(nombreproducto) {
 
   let productoSeleccionado =
@@ -96,44 +178,164 @@ function mostrarnombre(nombreproducto) {
       producto => producto.nombre === nombreproducto
     );
 
+  if (!productoSeleccionado) return;
+
+  let existe =
+    contadodeproductos.find(
+      p => p.nombre === nombreproducto
+    );
+
+  if (existe) {
+
+    existe.cantidad++;
+
+  } else {
+
+    contadodeproductos.push({
+      ...productoSeleccionado,
+      cantidad: 1
+    });
+
+  }
+
+  actualizarCarrito();
+
+}
+
+// Dibujar carrito
+function actualizarCarrito() {
+
   let asidecarrito =
     document.getElementById('carrito');
 
-  if (productoSeleccionado && asidecarrito) {
+  asidecarrito.innerHTML = '';
 
-    contadodeproductos.push(productoSeleccionado);
+  contadodeproductos.forEach(producto => {
 
     asidecarrito.innerHTML += `
-      <p><strong>Nombre:</strong> ${productoSeleccionado.nombre}</p>
-      <p><strong>Valor:</strong> $${productoSeleccionado.valo}</p>
-      <p><strong>Cantidad disponible:</strong> ${productoSeleccionado.catida}</p>
-      <hr>
+      <div style="margin-bottom:10px;">
+
+        <p>
+          <strong>${producto.nombre}</strong>
+        </p>
+
+        <p>
+          Precio: $${producto.valo}
+        </p>
+
+        <button
+          onclick="restarCantidad('${producto.nombre}')"
+        >
+          -
+        </button>
+
+        <span style="margin:0 10px;">
+          ${producto.cantidad}
+        </span>
+
+        <button
+          onclick="sumarCantidad('${producto.nombre}')"
+        >
+          +
+        </button>
+
+        <button
+          onclick="eliminarProducto('${producto.nombre}')"
+        >
+          🗑
+        </button>
+
+        <hr>
+
+      </div>
     `;
 
-  }
+  });
 
   sumadeprocductos();
 
 }
 
+// Aumentar cantidad
+function sumarCantidad(nombre) {
 
-function sumadeprocductos() {
+  let producto =
+    contadodeproductos.find(
+      p => p.nombre === nombre
+    );
 
-  let sumaBtn = document.getElementById('suma');
+  if (producto) {
 
-  let total = 0;
+    producto.cantidad++;
 
-  contadodeproductos.forEach(producto => {
-    total += producto.valo;
-  });
+    actualizarCarrito();
 
-  if (sumaBtn) {
-    sumaBtn.textContent = `Total: $${total}`;
   }
 
 }
 
+// Disminuir cantidad
+function restarCantidad(nombre) {
 
+  let producto =
+    contadodeproductos.find(
+      p => p.nombre === nombre
+    );
+
+  if (!producto) return;
+
+  producto.cantidad--;
+
+  if (producto.cantidad <= 0) {
+
+    eliminarProducto(nombre);
+
+  } else {
+
+    actualizarCarrito();
+
+  }
+
+}
+
+// Eliminar producto
+function eliminarProducto(nombre) {
+
+  contadodeproductos =
+    contadodeproductos.filter(
+      p => p.nombre !== nombre
+    );
+
+  actualizarCarrito();
+
+}
+
+// Calcular total
+function sumadeprocductos() {
+
+  let total = 0;
+
+  contadodeproductos.forEach(producto => {
+
+    total +=
+      producto.valo *
+      producto.cantidad;
+
+  });
+
+  let sumaBtn =
+    document.getElementById('suma');
+
+  if (sumaBtn) {
+
+    sumaBtn.textContent =
+      `Total: $${total}`;
+
+  }
+
+}
+
+// Temas
 function cofigurarTema(tema) {
 
   document.documentElement.setAttribute(
@@ -148,7 +350,7 @@ function cofigurarTema(tema) {
 
 }
 
-
+// Volver arriba
 function volverarriba() {
 
   window.scroll({
@@ -158,9 +360,11 @@ function volverarriba() {
 
 }
 
+// Comprar
 function comprarTodo() {
 
-  const token = localStorage.getItem('token');
+  const token =
+    localStorage.getItem('token');
 
   if (!token) {
 
@@ -169,36 +373,30 @@ function comprarTodo() {
     );
 
     return;
+
   }
 
-  let asidecarrito =
-    document.getElementById('carrito');
-
   comprados =
-    comprados.concat(contadodeproductos);
+    comprados.concat(
+      contadodeproductos
+    );
 
   contadodeproductos = [];
 
-  if (asidecarrito) {
-    asidecarrito.innerHTML = '';
-  }
+  actualizarCarrito();
 
-  let sumaBtn =
-    document.getElementById('suma');
-
-  if (sumaBtn) {
-    sumaBtn.textContent = 'Total: $0';
-  }
-
-  alert('Compra realizada');
+  alert(
+    'Compra realizada correctamente'
+  );
 
   console.log(
     'Productos comprados:',
     comprados
   );
+
 }
 
-
+// Buscar productos
 function busqueda() {
 
   let input =
@@ -216,11 +414,15 @@ function busqueda() {
   for (let i = 0; i < items.length; i++) {
 
     let nombre =
-      items[i].getAttribute('onclick');
+      items[i].getAttribute(
+        'onclick'
+      );
 
     if (
       nombre &&
-      nombre.toLowerCase().includes(filtro)
+      nombre.toLowerCase().includes(
+        filtro
+      )
     ) {
 
       items[i].style.display = '';
@@ -235,7 +437,7 @@ function busqueda() {
 
 }
 
-
+// Inicio
 window.onload = function () {
 
   cargarProductos();
@@ -243,7 +445,9 @@ window.onload = function () {
   sumadeprocductos();
 
   let busquedapornombre =
-    document.getElementById('input');
+    document.getElementById(
+      'input'
+    );
 
   if (busquedapornombre) {
 
