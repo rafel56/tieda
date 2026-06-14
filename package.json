@@ -1,0 +1,10 @@
+{
+  "name": "proyecto-componentes",
+  "version": "1.0.0",
+  "description": "Proyecto educativo: estructura de componentes en JavaScript con un build hecho en Node, sin librerias ni frameworks.",
+  "scripts": {
+    "build": "node build.js"
+  },
+  "author": "",
+  "license": "MIT"
+}
