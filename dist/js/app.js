@@ -124,6 +124,7 @@ document
     }
 
   });
+  // inicion
 
 document
   .getElementById('btnLogin')

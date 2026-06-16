@@ -33,3 +33,34 @@
   cursor:pointer;
   font-size:25px;
 }
+
+
+#loginModal h2 {
+  text-align: center;
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 20px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid #007bff;
+}
+#abrirLogin {
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  font-size: 16px;
+  font-weight: bold;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+#abrirLogin:hover {
+  transform: translateY(-2px);
+  opacity: 0.9;
+}
+
+#abrirLogin:active {
+  transform: translateY(0);
+}

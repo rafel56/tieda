@@ -403,6 +403,41 @@ h1{
     background:#0d47a1;
 }
 
+
+header{
+  background:var(--azul-principal);
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:15px;
+}
+
+header nav{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+header nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+header nav a:hover{
+  color:#bbdefb;
+}
+
+#input{
+  width:300px;
+  max-width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+}
+
 /* ===== login ===== */
 .modal{
   display:none;

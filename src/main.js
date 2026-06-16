@@ -6,6 +6,8 @@ let procdutos = [];
 let contadodeproductos = [];
 let comprados = [];
 
+
+
 async function cargarProductos() {
 
   try {
@@ -88,6 +90,8 @@ function mostrarnombre(nombreproducto) {
   actualizarCarrito();
 
 }
+
+
 
 // Dibujar carrito
 function actualizarCarrito() {
@@ -288,8 +292,8 @@ function comprarTodo() {
     comprados
   );
 
-  window.location.href =
-    'despacho.html';
+  // window.location.href =
+  //   'despacho.html';
 
 }
 // Buscar productos
@@ -301,35 +305,27 @@ function busqueda() {
   let filtro =
     input.value.toLowerCase();
 
-  let galeria =
-    document.getElementById('galeria');
-
   let items =
-    galeria.getElementsByClassName('item');
+    document.querySelectorAll('#galeria .item');
 
-  for (let i = 0; i < items.length; i++) {
+  items.forEach(item => {
 
-    let nombre =
-      items[i].getAttribute(
-        'onclick'
-      );
+    let titulo =
+      item.querySelector('h3')
+          .textContent
+          .toLowerCase();
 
-    if (
-      nombre &&
-      nombre.toLowerCase().includes(
-        filtro
-      )
-    ) {
+    if (titulo.includes(filtro)) {
 
-      items[i].style.display = '';
+      item.style.display = '';
 
     } else {
 
-      items[i].style.display = 'none';
+      item.style.display = 'none';
 
     }
 
-  }
+  });
 
 }
 
@@ -355,3 +351,5 @@ window.onload = function () {
   }
 
 };
+
+
