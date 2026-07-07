@@ -1,7 +1,7 @@
 const ventasPendientes =
   JSON.parse(
     localStorage.getItem('ventasPendientes')
-  ) || [];
+  ) || '[]';
 
 function cargarDespachos() {
 
@@ -10,7 +10,7 @@ function cargarDespachos() {
 
   if (!contenedor) return;
 
-  contenedor.innerHTML = '';
+  contenedor.innerHTML = ''; 
 
   ventasPendientes.forEach(
     (producto, index) => {
@@ -45,4 +45,29 @@ window.despachar = function(index) {
 
 };
 
-cargarDespachos();
+window.despachar = async function(index) {
+
+  const producto = ventasPendientes[index];
+
+  await fetch(
+    'http://localhost:3000/api/despachar',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(producto)
+    }
+  );
+
+  ventasPendientes.splice(index, 1);
+
+  localStorage.setItem(
+    'ventasPendientes',
+    JSON.stringify(ventasPendientes)
+  );
+
+  cargarDespachos();
+};
+
+cargarDespachos ()

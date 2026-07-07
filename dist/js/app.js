@@ -5,7 +5,7 @@
 const ventasPendientes =
   JSON.parse(
     localStorage.getItem('ventasPendientes')
-  ) || [];
+  ) || '[]';
 
 function cargarDespachos() {
 
@@ -14,7 +14,7 @@ function cargarDespachos() {
 
   if (!contenedor) return;
 
-  contenedor.innerHTML = '';
+  contenedor.innerHTML = ''; 
 
   ventasPendientes.forEach(
     (producto, index) => {
@@ -49,7 +49,32 @@ window.despachar = function(index) {
 
 };
 
-cargarDespachos();
+window.despachar = async function(index) {
+
+  const producto = ventasPendientes[index];
+
+  await fetch(
+    'http://localhost:3000/api/despachar',
+    {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(producto)
+    }
+  );
+
+  ventasPendientes.splice(index, 1);
+
+  localStorage.setItem(
+    'ventasPendientes',
+    JSON.stringify(ventasPendientes)
+  );
+
+  cargarDespachos();
+};
+
+cargarDespachos ()
 })();
 
 // ===== login =====
@@ -293,64 +318,41 @@ let contadodeproductos = [];
 let comprados = [];
 
 
+// let procdutos = [];
 
 async function cargarProductos() {
-
   try {
-
-    const respuesta =
-      await fetch(
-        'http://localhost:3000/api/productos'
-      );
-
-    procdutos =
-      await respuesta.json();
-
+    const respuesta = await fetch('http://localhost:3000/api/productos');
+    procdutos = await respuesta.json();
     todoprocductos();
-
   } catch (error) {
-
-    console.error(
-      'Error cargando productos:',
-      error
-    );
-
+    console.error('Error cargando productos:', error);
   }
-
 }
 
-// Mostrar productos
 function todoprocductos() {
-
-  procdutos.forEach(producto => {
-
-    let espacio =
-      document.querySelector(
-        `.${producto.nombre}`
-      );
-
+  procdutos.forEach(productos => {
+    let espacio = document.querySelector(`.${productos.nombre}`);
     if (espacio) {
-
       espacio.innerHTML = `
         <div style="padding:5px; font-size:13px; color:#222;">
-          Nombre: ${producto.nombre}<br>
-          Valor: $${producto.valo}<br>
-          Cantidad: ${producto.catida}
+          Nombre: ${productos.nombre}<br>
+          Valor: $${productos.valo}<br>
+          Cantidad: ${productos.catida}
         </div>
       `;
-
     }
-
   });
-
 }
+
+cargarProductos(); // ¡Esto es necesario para que se ejecute!
 
 // Agregar producto al carrito
 function mostrarnombre(nombreproducto) {
 
   let productoSeleccionado =
     procdutos.find(
-      producto => producto.nombre === nombreproducto
+      productos => productos.nombre === nombreproducto
     );
 
   if (!productoSeleccionado) return;
