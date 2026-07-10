@@ -318,41 +318,64 @@ let contadodeproductos = [];
 let comprados = [];
 
 
-// let procdutos = [];
 
 async function cargarProductos() {
+
   try {
-    const respuesta = await fetch('http://localhost:3000/api/productos');
-    procdutos = await respuesta.json();
+
+    const respuesta =
+      await fetch(
+        'http://localhost:3000/api/productos'
+      );
+
+    procdutos =
+      await respuesta.json();
+
     todoprocductos();
+
   } catch (error) {
-    console.error('Error cargando productos:', error);
+
+    console.error(
+      'Error cargando productos:',
+      error
+    );
+
   }
+
 }
 
+// Mostrar productos
 function todoprocductos() {
-  procdutos.forEach(productos => {
-    let espacio = document.querySelector(`.${productos.nombre}`);
+
+  procdutos.forEach(producto => {
+
+    let espacio =
+      document.querySelector(
+        `.${producto.nombre}`
+      );
+
     if (espacio) {
+
       espacio.innerHTML = `
         <div style="padding:5px; font-size:13px; color:#222;">
-          Nombre: ${productos.nombre}<br>
-          Valor: $${productos.valo}<br>
-          Cantidad: ${productos.catida}
+          Nombre: ${producto.nombre}<br>
+          Valor: $${producto.valo}<br>
+          Cantidad: ${producto.catida}
         </div>
       `;
-    }
-  });
-}
 
-cargarProductos(); // ¡Esto es necesario para que se ejecute!
+    }
+
+  });
+
+}
 
 // Agregar producto al carrito
 function mostrarnombre(nombreproducto) {
 
   let productoSeleccionado =
     procdutos.find(
-      productos => productos.nombre === nombreproducto
+      producto => producto.nombre === nombreproducto
     );
 
   if (!productoSeleccionado) return;
@@ -540,50 +563,65 @@ function volverarriba() {
 }
 
 // Comprar
-function comprarTodo() {
+// Comprar
+async function comprarTodo() {
 
-  const token =
-    localStorage.getItem('token');
+  const token = localStorage.getItem('token');
 
   if (!token) {
-
-    alert(
-      'Debes iniciar sesión para comprar'
-    );
-
+    alert('Debes iniciar sesión para comprar');
     return;
-
   }
 
-  comprados =
-    comprados.concat(
-      contadodeproductos
+  if (contadodeproductos.length === 0) {
+    alert('No hay productos en el carrito');
+    return;
+  }
+
+  try {
+
+    // Mandamos cada producto del carrito al backend
+    for (const producto of contadodeproductos) {
+
+      const respuesta = await fetch('http://localhost:3000/api/comprar', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify({ productoId: producto.id })
+      });
+
+      const datos = await respuesta.json();
+
+      if (!respuesta.ok) {
+        throw new Error(datos.mensaje || 'Error al registrar la compra');
+      }
+
+      console.log('Compra registrada:', datos);
+    }
+
+    // Solo si TODO salió bien, actualizamos el estado local
+    comprados = comprados.concat(contadodeproductos);
+
+    localStorage.setItem(
+      'ventasPendientes',
+      JSON.stringify(contadodeproductos)
     );
 
-  localStorage.setItem(
-    'ventasPendientes',
-    JSON.stringify(
-      contadodeproductos
-    )
-  );
+    contadodeproductos = [];
 
-  contadodeproductos = [];
+    actualizarCarrito();
 
-  actualizarCarrito();
+    alert('Compra realizada correctamente');
 
-  alert(
-    'Compra realizada correctamente'
-  );
-
-  console.log(
-    'Productos comprados:',
-    comprados
-  );
-
-  // window.location.href =
-  //   'despacho.html';
-
+  } catch (error) {
+    console.error('Error al comprar:', error);
+    alert('No se pudo completar la compra: ' + error.message);
+  }
 }
+
+  
 // Buscar productos
 function busqueda() {
 
