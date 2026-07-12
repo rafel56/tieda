@@ -25,7 +25,7 @@
       <a href="#"onclick="cofigurarTema('Dinero')">copramas</a> 
       <a href="#"onclick="cofigurarTema('Ligth')">carrito</a> 
       <a href="#"onclick="cofigurarTema('Dark')">producto</a> 
-      <a href="productos.html">productos de ristros</a>
+      <a href="productos.html">productos de registro</a>
       <a href="despacho.html">Despachos</a>
 
  
@@ -58,12 +58,37 @@
 
     </aside>
 
-    <section>
-      <h2>Catálogo de productos</h2>
-      <div id="lista-productos"></div>
-    </section>
+   
 
- 
+ <section>
+
+    <h2>Catálogo de productos</h2>
+
+    <div id="galeria"></div>
+
+</section>
+
+<div id="modalProducto" class="modalProducto">
+
+  <div class="modalContenido">
+
+    <span id="cerrarProducto" class="cerrarProducto">&times;</span>
+
+    <img id="modalImagen" src="" alt="">
+
+    <h2 id="modalNombre"></h2>
+
+    <p id="modalPrecio"></p>
+
+    <p id="modalDescripcion"></p>
+
+    <button onclick="agregarDesdeModal()">
+      Agregar al carrito
+    </button>
+
+  </div>
+
+</div>
   
     
   <button id="abrirLogin">Iniciar sesión</button>
