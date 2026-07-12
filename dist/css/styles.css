@@ -528,3 +528,170 @@ header nav a:hover{
   border-radius:12px;
   text-align:center;
 }
+
+/* ===== productos ===== */
+/* ===== PRODUCTOS ===== */
+
+:root{
+    --azul-principal:#1976d2;
+}
+
+body{
+    margin:0;
+    background:#f4f8ff;
+    font-family:'Segoe UI', system-ui, sans-serif;
+}
+
+h1{
+    text-align:center;
+    margin:20px 0;
+    color:#0d47a1;
+}
+
+header{
+  background:var(--azul-principal);
+  padding:15px 20px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  flex-wrap:wrap;
+  gap:15px;
+}
+
+header nav{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+}
+
+header nav a{
+  color:white;
+  text-decoration:none;
+  font-weight:bold;
+}
+
+header nav a:hover{
+  color:#bbdefb;
+}
+
+#input{
+  width:300px;
+  max-width:100%;
+  padding:10px;
+  border:none;
+  border-radius:8px;
+}
+
+#productos{
+    width:90%;
+    max-width:560px;
+    margin:auto;
+    padding:20px;
+}
+
+#productos .subtitulo{
+    text-align:center;
+    color:#5a6b85;
+    margin:0 0 25px;
+    font-size:.95rem;
+}
+
+#productos form{
+    background:white;
+    border:2px solid #2196f3;
+    border-radius:15px;
+    padding:25px;
+    display:grid;
+    gap:20px;
+    box-shadow:0 4px 10px rgba(0,0,0,.1);
+}
+
+#productos .campo{
+    display:grid;
+    gap:6px;
+}
+
+#productos .fila-doble{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+}
+
+#productos label{
+    font-size:.85rem;
+    font-weight:bold;
+    color:#1565c0;
+}
+
+#productos label .opcional{
+    font-weight:normal;
+    color:#8a97ad;
+}
+
+#productos input[type="text"],
+#productos input[type="number"],
+#productos textarea{
+    border:1px solid #90caf9;
+    border-radius:8px;
+    padding:10px 12px;
+    font-size:.95rem;
+    font-family:inherit;
+    background:#f4f8ff;
+    color:#333;
+}
+
+#productos input:focus,
+#productos textarea:focus,
+#productos .zona-imagenes:focus-within{
+    outline:none;
+    border-color:#1976d2;
+    box-shadow:0 0 0 3px rgba(25,118,210,.15);
+}
+
+#productos textarea{
+    resize:vertical;
+    min-height:90px;
+}
+
+#productos .zona-imagenes{
+    border:2px dashed #90caf9;
+    border-radius:8px;
+    padding:18px;
+    text-align:center;
+    cursor:pointer;
+    background:#f4f8ff;
+}
+
+#productos .zona-imagenes input{
+    display:none;
+}
+
+#productos .zona-imagenes span.principal{
+    display:block;
+    font-size:.9rem;
+    font-weight:bold;
+    color:#1565c0;
+}
+
+#productos .zona-imagenes span.secundaria{
+    display:block;
+    font-size:.78rem;
+    color:#8a97ad;
+    margin-top:4px;
+}
+
+#productos .previsualizacion{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:12px;
+}
+
+#productos .previsualizacion .miniatura{
+    position:relative;
+    width:72px;
+    height:72px;
+    border-radius:8px;
+    overflow:hidden;
+    border:2px solid #2196f3
+}
