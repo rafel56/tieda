@@ -238,23 +238,24 @@ document
 
 // ===== modal =====
 (function () {
-(function () {
-
-let productoActual = null;
-
 function abrirProducto(nombre) {
 
-  const producto =
-    procdutos.find(
-      p => p.nombre === nombre
-    );
+  const producto = procdutos.find(
+    p => p.nombre === nombre
+  );
 
   if (!producto) return;
 
   productoActual = nombre;
 
-  document.getElementById('modalImagen').src =
-    producto.imagen || '';
+  const imagen = document.getElementById('modalImagen');
+
+  imagen.src = `./assets/${producto.nombre}.jpeg`;
+
+  imagen.onerror = function () {
+    this.onerror = null;
+    this.src = "./assets/sin-imagen.png";
+  };
 
   document.getElementById('modalNombre').textContent =
     producto.nombre;
@@ -268,45 +269,6 @@ function abrirProducto(nombre) {
   document.getElementById('modalProducto').style.display =
     'block';
 }
-
-function cerrarProducto() {
-
-  document.getElementById('modalProducto').style.display =
-    'none';
-
-}
-
-function agregarDesdeModal() {
-
-  if (!productoActual) return;
-
-  mostrarnombre(productoActual);
-
-  cerrarProducto();
-
-}
-
-window.abrirProducto = abrirProducto;
-window.cerrarProducto = cerrarProducto;
-window.agregarDesdeModal = agregarDesdeModal;
-
-document.addEventListener('DOMContentLoaded', () => {
-
-  const cerrarBtn =
-    document.getElementById('cerrarProducto');
-
-  if (cerrarBtn) {
-
-    cerrarBtn.addEventListener(
-      'click',
-      cerrarProducto
-    );
-
-  }
-
-});
-
-})();
 })();
 
 // ===== productos =====
@@ -317,53 +279,43 @@ async function cargarListaProductos() {
 
   if (!contenedor) return;
 
-  contenedor.innerHTML = '';
-
   const respuesta = await fetch('http://localhost:3000/api/productos');
 
-  const productos = await respuesta.json();
+  procdutos = await respuesta.json();
 
-  // Guardar los productos en el arreglo principal
-  procdutos = productos;
+  contenedor.innerHTML = procdutos.map(producto => {
 
-  productos.forEach(producto => {
-    agregarTarjetaProducto(producto);
-  });
+    const imagen = `./assets/${producto.nombre}.jpeg`;
 
-}
+    return `
+      <div class="item">
 
-function agregarTarjetaProducto(producto) {
+        <img
+          src="${imagen}"
+          alt="${producto.nombre}"
+          onclick="abrirProducto('${producto.nombre}')"
+          onerror="this.onerror=null;this.src='./assets/sin-imagen.png';"
+        >
 
-  const contenedor = document.getElementById('lista-productos');
+        <h3>${producto.nombre}</h3>
 
-  if (!contenedor) return;
+        <p>Cantidad: ${producto.catida}</p>
 
-  // Si el producto es nuevo, lo agrega al arreglo
-  if (!procdutos.find(p => p.nombre === producto.nombre)) {
-    procdutos.push(producto);
-  }
+        <p>Precio: $${producto.valo}</p>
 
-  contenedor.innerHTML += `
-    <div class="item">
-      <h3>${producto.nombre}</h3>
+        <p>${producto.descripcion || ''}</p>
 
-      <p>Cantidad: ${producto.catida}</p>
+        <button onclick="mostrarnombre('${producto.nombre}')">
+          Agregar al carrito
+        </button>
 
-      <p>Precio: $${producto.valo}</p>
+      </div>
+    `;
 
-      <p>${producto.descripcion || ''}</p>
-
-      <button onclick="mostrarnombre('${producto.nombre}')">
-        Agregar al carrito
-      </button>
-    </div>
-  `;
+  }).join('');
 
 }
 
-if (document.getElementById('lista-productos')) {
-  cargarListaProductos();
-}
 
 // ============================
 // Registro de nuevo producto
@@ -478,8 +430,8 @@ if (document.getElementById('lista-productos')) {
 
       form.reset();
 
-      // Mostrar el nuevo producto inmediatamente
-      agregarTarjetaProducto(productoGuardado);
+// Volver a cargar la lista completa sin duplicados
+await cargarListaProductos();
 
     } catch (error) {
 
