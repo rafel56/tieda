@@ -1,7 +1,8 @@
-const ventasPendientes =
+let ventasPendientes =
   JSON.parse(
     localStorage.getItem('ventasPendientes')
-  ) || '[]';
+  ) || [];
+
 
 function cargarDespachos() {
 
@@ -10,64 +11,76 @@ function cargarDespachos() {
 
   if (!contenedor) return;
 
-  contenedor.innerHTML = ''; 
+  contenedor.innerHTML = '';
 
-  ventasPendientes.forEach(
-    (producto, index) => {
+  ventasPendientes.forEach((producto, index) => {
 
-      contenedor.innerHTML += `
-        <div class="item">
-          <h3>${producto.nombre}</h3>
-          <p>Cantidad: ${producto.cantidad}</p>
-          <p>Precio: $${producto.valo}</p>
+    contenedor.innerHTML += `
+      <div class="item">
 
-          <button onclick="despachar(${index})">
-            Despachar
-          </button>
-        </div>
-      `;
+        <h3>${producto.nombre}</h3>
 
-    }
-  );
+        <p>Cantidad: ${producto.cantidad}</p>
+
+        <p>Precio: $${producto.valo}</p>
+
+        <button onclick="despachar(${index})">
+          Despachar
+        </button>
+
+      </div>
+    `;
+
+  });
 
 }
 
-window.despachar = function(index) {
 
-  ventasPendientes.splice(index, 1);
-
-  localStorage.setItem(
-    'ventasPendientes',
-    JSON.stringify(ventasPendientes)
-  );
-
-  cargarDespachos();
-
-};
-
+// Enviar despacho al backend
 window.despachar = async function(index) {
 
   const producto = ventasPendientes[index];
 
-  await fetch(
-    'http://localhost:3000/api/despachar',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(producto)
-    }
-  );
+  try {
 
-  ventasPendientes.splice(index, 1);
+    await fetch(
+      'http://localhost:3000/api/despachar',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(producto)
+      }
+    );
 
-  localStorage.setItem(
-    'ventasPendientes',
-    JSON.stringify(ventasPendientes)
-  );
 
-  cargarDespachos();
+    // quitar solo después de guardar
+    ventasPendientes.splice(index,1);
+
+
+    localStorage.setItem(
+      'ventasPendientes',
+      JSON.stringify(ventasPendientes)
+    );
+
+
+    cargarDespachos();
+
+
+  } catch(error){
+
+    console.error(
+      "Error al despachar:",
+      error
+    );
+
+  }
+
 };
 
-cargarDespachos ()
+
+document.addEventListener(
+  "DOMContentLoaded",
+  cargarDespachos
+);

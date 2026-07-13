@@ -2,10 +2,11 @@
 
 // ===== despacho =====
 (function () {
-const ventasPendientes =
+let ventasPendientes =
   JSON.parse(
     localStorage.getItem('ventasPendientes')
-  ) || '[]';
+  ) || [];
+
 
 function cargarDespachos() {
 
@@ -14,67 +15,79 @@ function cargarDespachos() {
 
   if (!contenedor) return;
 
-  contenedor.innerHTML = ''; 
+  contenedor.innerHTML = '';
 
-  ventasPendientes.forEach(
-    (producto, index) => {
+  ventasPendientes.forEach((producto, index) => {
 
-      contenedor.innerHTML += `
-        <div class="item">
-          <h3>${producto.nombre}</h3>
-          <p>Cantidad: ${producto.cantidad}</p>
-          <p>Precio: $${producto.valo}</p>
+    contenedor.innerHTML += `
+      <div class="item">
 
-          <button onclick="despachar(${index})">
-            Despachar
-          </button>
-        </div>
-      `;
+        <h3>${producto.nombre}</h3>
 
-    }
-  );
+        <p>Cantidad: ${producto.cantidad}</p>
+
+        <p>Precio: $${producto.valo}</p>
+
+        <button onclick="despachar(${index})">
+          Despachar
+        </button>
+
+      </div>
+    `;
+
+  });
 
 }
 
-window.despachar = function(index) {
 
-  ventasPendientes.splice(index, 1);
-
-  localStorage.setItem(
-    'ventasPendientes',
-    JSON.stringify(ventasPendientes)
-  );
-
-  cargarDespachos();
-
-};
-
+// Enviar despacho al backend
 window.despachar = async function(index) {
 
   const producto = ventasPendientes[index];
 
-  await fetch(
-    'http://localhost:3000/api/despachar',
-    {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(producto)
-    }
-  );
+  try {
 
-  ventasPendientes.splice(index, 1);
+    await fetch(
+      'http://localhost:3000/api/despachar',
+      {
+        method:'POST',
+        headers:{
+          'Content-Type':'application/json'
+        },
+        body:JSON.stringify(producto)
+      }
+    );
 
-  localStorage.setItem(
-    'ventasPendientes',
-    JSON.stringify(ventasPendientes)
-  );
 
-  cargarDespachos();
+    // quitar solo después de guardar
+    ventasPendientes.splice(index,1);
+
+
+    localStorage.setItem(
+      'ventasPendientes',
+      JSON.stringify(ventasPendientes)
+    );
+
+
+    cargarDespachos();
+
+
+  } catch(error){
+
+    console.error(
+      "Error al despachar:",
+      error
+    );
+
+  }
+
 };
 
-cargarDespachos ()
+
+document.addEventListener(
+  "DOMContentLoaded",
+  cargarDespachos
+);
 })();
 
 // ===== login =====
@@ -256,17 +269,24 @@ async function cargarListaProductos() {
 
     try {
 
-        const respuesta = await fetch("http://localhost:3000/api/productos");
+        const respuesta = await fetch(
+            "http://localhost:3000/api/productos"
+        );
+
         procdutos = await respuesta.json();
 
-        contenedor.innerHTML = procdutos.map(producto => `
+
+        contenedor.innerHTML = procdutos.map(producto => {
+
+            return `
             <div class="item">
 
                 <img
-                    src="./assets/${producto.nombre}.jpeg"
-                    alt="${producto.nombre}"
-                    onclick="abrirProducto('${producto.nombre}')"
-                    onerror="this.onerror=null;this.src='./assets/sin-imagen.png';">
+                src="./assets/${producto.imagen}"
+                alt="${producto.nombre}"
+                onclick="abrirProducto('${producto.nombre}')"
+                onerror="this.onerror=null;this.src='./assets/sin-imagen.png';"
+                >
 
                 <h3>${producto.nombre}</h3>
 
@@ -279,11 +299,17 @@ async function cargarListaProductos() {
                 </button>
 
             </div>
-        `).join("");
+            `;
 
-    } catch (error) {
-        console.error("Error al cargar productos:", error);
+        }).join("");
+
+
+    } catch(error){
+
+        console.error(error);
+
     }
+
 }
 
 function abrirProducto(nombre) {
