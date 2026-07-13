@@ -79,8 +79,7 @@ cargarDespachos ()
 
 // ===== login =====
 (function () {
-const modal =
-  document.getElementById('loginModal');
+const modal = document.getElementById('loginModal');
 
 document
   .getElementById('abrirLogin')
@@ -98,6 +97,10 @@ document
 
   });
 
+
+//registro
+
+
 document
   .getElementById('btnRegistro')
   .addEventListener('click', async () => {
@@ -105,51 +108,43 @@ document
     try {
 
       const usuario =
-        document.getElementById(
-          'usuarioRegistro'
-        ).value;
+        document.getElementById('usuarioRegistro').value;
 
       const password =
-        document.getElementById(
-          'passwordRegistro'
-        ).value;
+        document.getElementById('passwordRegistro').value;
 
-      const respuesta =
-        await fetch(
-          'http://localhost:3000/api/registro',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              usuario,
-              password
-            })
-          }
-        );
+      const respuesta = await fetch(
+        'http://localhost:3000/api/registro',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            usuario,
+            password
+          })
+        }
+      );
 
-      const datos =
-        await respuesta.json();
+      const datos = await respuesta.json();
 
-      document.getElementById(
-        'mensajeLogin'
-      ).textContent =
+      document.getElementById('mensajeLogin').textContent =
         datos.mensaje;
 
     } catch (error) {
 
       console.error(error);
 
-      document.getElementById(
-        'mensajeLogin'
-      ).textContent =
+      document.getElementById('mensajeLogin').textContent =
         'Error conectando al servidor';
 
     }
 
   });
-  // inicion
+
+
+//inicio de sesion
 
 document
   .getElementById('btnLogin')
@@ -158,37 +153,28 @@ document
     try {
 
       const usuario =
-        document.getElementById(
-          'usuarioLogin'
-        ).value;
+        document.getElementById('usuarioLogin').value;
 
       const password =
-        document.getElementById(
-          'passwordLogin'
-        ).value;
+        document.getElementById('passwordLogin').value;
 
-      const respuesta =
-        await fetch(
-          'http://localhost:3000/api/login',
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              usuario,
-              password
-            })
-          }
-        );
-
-      const datos =
-        await respuesta.json();
-
-      console.log(
-        'Respuesta login:',
-        datos
+      const respuesta = await fetch(
+        'http://localhost:3000/api/login',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            usuario,
+            password
+          })
+        }
       );
+
+      const datos = await respuesta.json();
+
+      console.log(datos);
 
       if (datos.token) {
 
@@ -197,43 +183,65 @@ document
           datos.token
         );
 
-        document.getElementById(
-          'mensajeLogin'
-        ).textContent =
-          'Sesión iniciada correctamente';
-
-        alert(
-          'Sesión iniciada'
+        localStorage.setItem(
+          'administrador',
+          datos.administrador
         );
 
-        modal.style.display =
-          'none';
+        document.getElementById('mensajeLogin').textContent =
+          'Sesión iniciada correctamente';
+
+        modal.style.display = 'none';
+
+        actualizarMenu();
+
+        alert('Sesión iniciada');
 
       } else {
 
-        document.getElementById(
-          'mensajeLogin'
-        ).textContent =
-          datos.mensaje ||
-          'Usuario o contraseña incorrectos';
+        document.getElementById('mensajeLogin').textContent =
+          datos.mensaje;
 
       }
 
     } catch (error) {
 
-      console.error(
-        'Error login:',
-        error
-      );
+      console.error(error);
 
-      document.getElementById(
-        'mensajeLogin'
-      ).textContent =
+      document.getElementById('mensajeLogin').textContent =
         'No se pudo conectar al servidor';
 
     }
 
   });
+
+
+//ocultar modal al hacer clic fuera de él
+
+function actualizarMenu() {
+
+  const administrador =
+    localStorage.getItem("administrador") === "true";
+
+  const linkProductos =
+    document.getElementById("linkProductos");
+
+  const linkDespacho =
+    document.getElementById("linkDespacho");
+
+  if (linkProductos) {
+    linkProductos.style.display =
+      administrador ? "" : "none";
+  }
+
+  if (linkDespacho) {
+    linkDespacho.style.display =
+      administrador ? "" : "none";
+  }
+
+}
+
+document.addEventListener("DOMContentLoaded", actualizarMenu);
 })();
 
 // ===== modal =====
